@@ -65,6 +65,18 @@
     low: "badge-error",
   };
 
+  const REFERENCE_KIND_LABEL = {
+    "same-domain": "同土俵",
+    analogy: "アナロジー",
+    "user-specified": "ユーザー指定",
+  };
+
+  const REFERENCE_KIND_BADGE_CLASS = {
+    "same-domain": "badge-done",
+    analogy: "badge-doing",
+    "user-specified": "badge-review",
+  };
+
   document.addEventListener("DOMContentLoaded", init);
 
   function init() {
@@ -245,6 +257,7 @@
     }
 
     renderRoadmapQuestions(roadmap.constraints && roadmap.constraints.openQuestions);
+    renderRoadmapReferences(roadmap.references);
     renderRoadmapSteps(roadmap.steps);
     renderRoadmapFallbackNote(roadmap.meta && roadmap.meta.fallbacks);
   }
@@ -274,6 +287,124 @@
 
       list.appendChild(li);
     });
+  }
+
+  // References section: like the roadmap section itself, this must degrade
+  // gracefully. If `references` is missing or every entry is malformed, the
+  // whole block simply stays hidden instead of throwing or showing partial
+  // junk.
+  function isValidReference(ref) {
+    return Boolean(
+      ref &&
+        typeof ref === "object" &&
+        typeof ref.kind === "string" &&
+        ref.source &&
+        typeof ref.source.ref === "string" &&
+        ref.source.ref
+    );
+  }
+
+  function renderRoadmapReferences(references) {
+    const section = document.getElementById("roadmap-references-section");
+    const list = document.getElementById("roadmap-references");
+    if (!section || !list) return;
+    list.innerHTML = "";
+
+    const valid = Array.isArray(references) ? references.filter(isValidReference) : [];
+    if (valid.length === 0) {
+      section.hidden = true;
+      return;
+    }
+
+    valid.forEach((ref) => {
+      list.appendChild(buildReferenceCard(ref));
+    });
+    section.hidden = false;
+  }
+
+  function buildReferenceCard(ref) {
+    const li = document.createElement("li");
+    li.className = "roadmap-reference";
+
+    const details = document.createElement("details");
+
+    const summary = document.createElement("summary");
+
+    const kindBadge = document.createElement("span");
+    kindBadge.className = "badge " + (REFERENCE_KIND_BADGE_CLASS[ref.kind] || "badge-todo");
+    kindBadge.textContent = REFERENCE_KIND_LABEL[ref.kind] || ref.kind;
+    summary.appendChild(kindBadge);
+
+    const noteText = document.createElement("span");
+    noteText.className = "roadmap-reference-note";
+    noteText.textContent = (ref.source && ref.source.note) || ref.source.ref;
+    summary.appendChild(noteText);
+
+    details.appendChild(summary);
+    details.appendChild(buildReferenceBody(ref));
+    li.appendChild(details);
+    return li;
+  }
+
+  function buildReferenceBody(ref) {
+    const body = document.createElement("div");
+    body.className = "roadmap-reference-body";
+
+    const sourceWrap = document.createElement("div");
+    sourceWrap.className = "roadmap-field";
+    const sourceLabel = document.createElement("div");
+    sourceLabel.className = "roadmap-field-label";
+    sourceLabel.textContent = "出典";
+    sourceWrap.appendChild(sourceLabel);
+    const sourceP = document.createElement("p");
+    const a = document.createElement("a");
+    a.href = ref.source.ref;
+    a.textContent = ref.source.ref;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    sourceP.appendChild(a);
+    sourceWrap.appendChild(sourceP);
+    body.appendChild(sourceWrap);
+
+    if (Array.isArray(ref.essence) && ref.essence.length > 0) {
+      const wrap = document.createElement("div");
+      wrap.className = "roadmap-field";
+      const label = document.createElement("div");
+      label.className = "roadmap-field-label";
+      label.textContent = "らしさ(trait ← why)";
+      wrap.appendChild(label);
+      const ul = document.createElement("ul");
+      ul.className = "plain-list";
+      ref.essence.forEach((e) => {
+        if (!e) return;
+        const item = document.createElement("li");
+        item.textContent = (e.trait || "") + " ← " + (e.why || "");
+        ul.appendChild(item);
+      });
+      wrap.appendChild(ul);
+      body.appendChild(wrap);
+    }
+
+    if (Array.isArray(ref.transfer) && ref.transfer.length > 0) {
+      const wrap = document.createElement("div");
+      wrap.className = "roadmap-field";
+      const label = document.createElement("div");
+      label.className = "roadmap-field-label";
+      label.textContent = "転換(反映先の工程)";
+      wrap.appendChild(label);
+      const ul = document.createElement("ul");
+      ul.className = "plain-list";
+      ref.transfer.forEach((t) => {
+        if (!t) return;
+        const item = document.createElement("li");
+        item.textContent = "[" + (t.toStepId || "?") + "] " + (t.instruction || "");
+        ul.appendChild(item);
+      });
+      wrap.appendChild(ul);
+      body.appendChild(wrap);
+    }
+
+    return body;
   }
 
   function renderRoadmapSteps(steps) {

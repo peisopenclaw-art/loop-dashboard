@@ -24,6 +24,52 @@
     "confidence": "high",
     "selectedBy": "local-llm"
   },
+  "references": [
+    {
+      "id": "r1",
+      "kind": "same-domain",
+      "source": {
+        "type": "url",
+        "ref": "https://example.com/refs/diy-pc-budget-guide-2026",
+        "note": "サンプル。予算10万円台の自作PC定番構成ガイドを想定したダミーURL"
+      },
+      "essence": [
+        {
+          "trait": "パーツ選定を型番から探すのではなく、先に予算比率テンプレ(GPU35〜40%等)へ当てはめてから型番探しに入る",
+          "why": "型番から入ると合計額が予算を超えたことに気づくのが最後の工程になり手戻りが大きい。比率から入れば超過に早い段階で気づけるため"
+        }
+      ],
+      "transfer": [
+        {
+          "toStepId": "s2",
+          "instruction": "パーツ構成の決定(s2)のactivitiesの先頭に『予算配分テンプレへの当てはめを型番探しより先に行う』手順を明記する"
+        }
+      ],
+      "extractedBy": "codex"
+    },
+    {
+      "id": "r2",
+      "kind": "analogy",
+      "source": {
+        "type": "url",
+        "ref": "https://example.com/refs/meal-kit-delivery-model",
+        "note": "サンプル。アナロジー: ミールキット宅配サービスの『一式検証済みで届く』提供モデルを想定したダミーURL"
+      },
+      "essence": [
+        {
+          "trait": "必要な材料一式と手順書を1セットにまとめ、届いた時点で分量・組み合わせが検証済みの状態にしてから調理者に渡す",
+          "why": "調理者(組み立てる人)の経験値に依存せず成功率を上げるため、購入前の時点で組み合わせの適合を検証し切ってから発注に回しているから"
+        }
+      ],
+      "transfer": [
+        {
+          "toStepId": "s3",
+          "instruction": "互換性確認(s3)に『発注前にパーツ一式をQVL/対応表で検証済みの組み合わせに揃えてから購入に回す』というミールキット的な一括検証の考え方をactivitiesへ反映する(面白い転用点: 料理未経験者でも失敗しにくくする仕組みを、電子工作未経験者の自作PCにも適用する)"
+        }
+      ],
+      "extractedBy": "codex"
+    }
+  ],
   "steps": [
     {
       "id": "s1",

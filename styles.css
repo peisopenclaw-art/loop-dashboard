@@ -338,6 +338,74 @@ ul {
   font-weight: 600;
 }
 
+.roadmap-references-section {
+  margin-bottom: 14px;
+}
+
+.roadmap-references-section[hidden] {
+  display: none;
+}
+
+.roadmap-subheading {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.roadmap-references {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.roadmap-reference {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 9px 10px;
+}
+
+.roadmap-reference summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+}
+
+.roadmap-reference summary::-webkit-details-marker {
+  display: none;
+}
+
+.roadmap-reference summary::before {
+  content: "▸";
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.roadmap-reference[open] summary::before {
+  content: "▾";
+}
+
+.roadmap-reference-note {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.roadmap-reference-body {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
 .roadmap-steps {
   display: flex;
   flex-direction: column;
