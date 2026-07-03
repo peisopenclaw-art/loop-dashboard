@@ -1,0 +1,271 @@
+{
+  "schemaVersion": "1.0",
+  "createdAt": "2026-07-02T09:00:00+09:00",
+  "updatedAt": "2026-07-02T09:40:00+09:00",
+  "request": "自作PCを予算10万で作りたい",
+  "constraints": {
+    "goal": "予算10万円以内でゲーム用途に耐える自作PCを組む",
+    "deadline": null,
+    "budget": "100000 JPY",
+    "successCriteria": ["負荷テスト24時間をエラーなく通過する"],
+    "notDoing": ["水冷化(空冷のみとする)", "オーバークロックへの挑戦"],
+    "assumptions": [
+      { "text": "用途はゲーム(フルHD、eスポーツ〜AAAタイトル中設定程度)と仮定", "assumption": true }
+    ],
+    "openQuestions": [
+      { "id": "q1", "question": "主な用途はゲーム重視か、開発・配信も含むか?", "status": "open", "answer": null },
+      { "id": "q2", "question": "流用できる既存パーツ(モニタ・OSライセンス・ストレージ等)はあるか?", "status": "open", "answer": null }
+    ]
+  },
+  "typeSelection": {
+    "catalogId": "procurement-build",
+    "name": "調達・組立系",
+    "reason": "物理的な部品の選定・購入・組立を伴うため",
+    "confidence": "high",
+    "selectedBy": "local-llm"
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "title": "用途と要求性能の確定",
+      "purpose": "何のために使うPCかを明確にし、必要な性能水準を決める",
+      "activities": [
+        "主な用途をヒアリング(ゲーム/開発/配信等)",
+        "求める解像度・fps・同時実行アプリを整理",
+        "既存流用パーツの棚卸し"
+      ],
+      "deliverables": ["requirements.md(用途・要求性能・流用パーツ一覧)"],
+      "cautions": [
+        "用途を『なんとなく高性能』で済ませると予算配分を誤る",
+        "将来の増設余地を最初に決めておかないと後で後悔しやすい"
+      ],
+      "tools": ["ヒアリングメモ", "既存PCのスペック確認"],
+      "methods": ["用途→必要スペックの対応表を使った穴埋め方式"],
+      "doneCriteria": [
+        "用途・優先度(fps/画質/静音性等)が1行で言える状態になっている",
+        "流用パーツの有無が確定している"
+      ],
+      "verificationMethod": "本人が要求性能メモを読み返し、予算とfps目標に矛盾がないか確認する",
+      "inputs": ["ユーザーの初期リクエスト(『自作PCを予算10万で作る』)"],
+      "dependsOn": [],
+      "estimate": { "time": "1h", "cost": "0 JPY" },
+      "risks": [
+        { "risk": "用途が曖昧なまま次工程に進み、パーツ構成をやり直すことになる", "fallback": "openQuestionsで用途を確認してから段階2に進む" }
+      ],
+      "returnTo": null,
+      "owner": "human",
+      "freshness": "stable",
+      "research": { "required": false, "sources": [] }
+    },
+    {
+      "id": "s2",
+      "title": "パーツ構成の決定(CPU/GPU/価格配分)",
+      "purpose": "予算10万円をパーツごとに配分し、現行世代から具体的な候補を選ぶ",
+      "activities": [
+        "予算配分の定石(GPU比率35〜40%等)を当てはめる",
+        "現行世代CPU/GPUの実売価格を調査",
+        "候補パーツリストを作成(型番・価格・購入先候補)"
+      ],
+      "deliverables": ["parts-list.md(CPU/GPU/マザーボード/メモリ/ストレージ/電源/ケースの候補と価格)"],
+      "cautions": [
+        "電源をケチると他パーツを巻き込んで壊れることがある",
+        "型落ちと現行世代の価格差が縮まっている時期は型落ちが割高になりがち"
+      ],
+      "tools": ["価格比較サイト", "パーツ選定チェックリスト"],
+      "methods": ["予算配分テンプレート(GPU>CPU>その他の順で優先配分)"],
+      "doneCriteria": [
+        "各パーツカテゴリに1つ以上の候補型番と実売価格が入っている",
+        "合計金額が予算10万円以内(または超過理由が明記されている)"
+      ],
+      "verificationMethod": "合計金額を合算し予算内かを機械的に確認。超過時は差し戻し",
+      "inputs": ["s1の要求性能メモ"],
+      "dependsOn": ["s1"],
+      "estimate": { "time": "3h", "cost": "0 JPY" },
+      "risks": [
+        { "risk": "現行世代の価格が急騰していて予算内に収まらない", "fallback": "型落ち世代や中古パーツを候補に加える" }
+      ],
+      "returnTo": "s1",
+      "owner": "codex",
+      "freshness": "fresh",
+      "research": {
+        "required": true,
+        "sources": [
+          { "url": "https://example.com/pricing/cpu-gpu-2026-07", "note": "サンプル用ダミーURL。実際は価格.comやメーカー公式等の現行実売価格を参照する想定" },
+          { "url": "https://example.com/pricing/budget-allocation-guide", "note": "サンプル用ダミーURL。予算配分の定石(GPU比率等)を参照する想定" }
+        ]
+      }
+    },
+    {
+      "id": "s3",
+      "title": "互換性確認",
+      "purpose": "選定したパーツ同士が物理的・電気的に組み合わせ可能か確認する",
+      "activities": [
+        "CPUソケットとマザーボードの対応確認",
+        "メモリ規格(DDR4/DDR5)・対応周波数の確認",
+        "電源容量とGPU推奨電源の突き合わせ",
+        "ケースサイズとマザーボード規格・GPU長の確認"
+      ],
+      "deliverables": ["compatibility-checklist.md(項目ごとの適合/不適合)"],
+      "cautions": [
+        "メモリの相性問題はスペック上適合していても実機で起きることがある",
+        "ケース内のGPU長・CPUクーラー高さのクリアランス見落としが多い"
+      ],
+      "tools": ["各メーカー公式の対応表", "互換性チェックリスト"],
+      "methods": ["チェックリスト方式(項目ごとにyes/noで判定)"],
+      "doneCriteria": ["全チェック項目がyes、またはnoの項目に代替パーツが提示されている"],
+      "verificationMethod": "チェックリストの全項目がyesになっていることを目視確認",
+      "inputs": ["s2のパーツ候補リスト"],
+      "dependsOn": ["s2"],
+      "estimate": { "time": "1.5h", "cost": "0 JPY" },
+      "risks": [
+        { "risk": "メモリの相性問題が実機組立まで分からない", "fallback": "メーカー公式のQVL(検証済みメモリリスト)掲載品に絞る" }
+      ],
+      "returnTo": "s2",
+      "owner": "local-llm",
+      "freshness": "stable",
+      "research": { "required": false, "sources": [] }
+    },
+    {
+      "id": "s4",
+      "title": "パーツ購入(予算承認とオーダー確定)",
+      "purpose": "確定したパーツ構成で実際に発注する",
+      "activities": [
+        "最終見積りの合計額を確認",
+        "購入先ごとの在庫・納期を確認",
+        "発注"
+      ],
+      "deliverables": ["注文確認一式", "purchase-log.md(購入先・価格・注文日)"],
+      "cautions": [
+        "セール情報を待ちすぎて型落ちしたり欠品したりすることがある",
+        "個別ショップの在庫状況は流動的で、確認時点と発注時点でずれることがある(未検証の前提)"
+      ],
+      "tools": ["各ECサイトのカート", "購入記録シート"],
+      "methods": [],
+      "doneCriteria": [
+        "全パーツの発注が完了し、注文確認が取れている",
+        "合計購入額が予算内である"
+      ],
+      "verificationMethod": "本人が予算超過がないことを承認してから発注を確定する(承認ゲート)",
+      "inputs": ["s3で確認済みのパーツ構成"],
+      "dependsOn": ["s3"],
+      "estimate": { "time": "1h", "cost": "100000 JPY" },
+      "risks": [
+        { "risk": "発注直前に特定パーツが欠品・値上がりしていた", "fallback": "s2の代替候補パーツに切り替えて再確認してから発注" }
+      ],
+      "returnTo": "s2",
+      "owner": "approval-gate",
+      "freshness": "unverified",
+      "research": { "required": false, "sources": [] }
+    },
+    {
+      "id": "s5",
+      "title": "組立",
+      "purpose": "購入したパーツを物理的に組み立てて動作可能な状態にする",
+      "activities": [
+        "静電気対策をした上でCPU/メモリ/ストレージをマザーボードに実装",
+        "マザーボードをケースに固定",
+        "電源配線・ケーブルマネジメント",
+        "ケース組み込み前の通電確認"
+      ],
+      "deliverables": ["組み立て済みPC本体"],
+      "cautions": [
+        "電源をケチると全部壊す(電源ユニットの品質を妥協しない)",
+        "CPUクーラーの取り付け不足による接触不良に注意",
+        "ケーブル配線を後回しにすると排熱効率が落ちる"
+      ],
+      "tools": ["ドライバー", "静電気防止リストバンド", "結束バンド"],
+      "methods": ["マザーボード単体でのベンチテスト(ケース組み込み前の起動確認)"],
+      "doneCriteria": [
+        "ケース外のベンチテストでPOST(電源投入後の起動画面)が確認できる",
+        "ケース組み込み後も同様にPOSTが確認できる"
+      ],
+      "verificationMethod": "起動時のビープ音・POST画面表示を目視確認",
+      "inputs": ["s4で届いた全パーツ"],
+      "dependsOn": ["s4"],
+      "estimate": { "time": "3h", "cost": "0 JPY" },
+      "risks": [
+        { "risk": "組み込み後に起動しない(配線ミス・接触不良)", "fallback": "ケース外のベンチテスト構成に戻して原因パーツを切り分ける" }
+      ],
+      "returnTo": "s4",
+      "owner": "human",
+      "freshness": "stable",
+      "research": { "required": false, "sources": [] }
+    },
+    {
+      "id": "s6",
+      "title": "OS導入とドライバ設定",
+      "purpose": "OSをインストールし、ハードウェアを認識・利用可能な状態にする",
+      "activities": [
+        "インストールメディアの作成",
+        "OSインストール",
+        "チップセット/GPUドライバの導入",
+        "BIOS/UEFI設定の確認(XMP有効化等)"
+      ],
+      "deliverables": ["起動可能なOS環境", "install-log.md"],
+      "cautions": [
+        "メモリのXMPプロファイルを有効化し忘れると定格より低速で動作し続ける",
+        "ドライバの導入順を誤ると認識不良の原因になることがある"
+      ],
+      "tools": ["OSインストールUSB", "メーカー公式ドライバ配布ページ"],
+      "methods": [],
+      "doneCriteria": [
+        "OSが正常に起動し、主要デバイスが全て認識されている",
+        "メモリがXMP定格の速度で動作している"
+      ],
+      "verificationMethod": "デバイスマネージャーとメモリ速度確認ツールで認識状況を確認",
+      "inputs": ["s5で組み立て済みのPC本体"],
+      "dependsOn": ["s5"],
+      "estimate": { "time": "1.5h", "cost": "0 JPY" },
+      "risks": [
+        { "risk": "特定パーツ(無線LANカード等)がOS標準ドライバで認識されない", "fallback": "メーカー公式サイトから該当ドライバを別PCでダウンロードし導入" }
+      ],
+      "returnTo": "s5",
+      "owner": "human",
+      "freshness": "stable",
+      "research": { "required": false, "sources": [] }
+    },
+    {
+      "id": "s7",
+      "title": "動作検証(負荷テスト)",
+      "purpose": "実運用に耐える安定性があるかを検証し、完了条件を満たすことを確認する",
+      "activities": [
+        "ストレステストツールで24時間負荷試験",
+        "温度・クロック・エラーログの監視",
+        "ベンチマークスコアの記録"
+      ],
+      "deliverables": ["stress-test-report.md(温度推移・エラー有無・ベンチスコア)"],
+      "cautions": [
+        "短時間のテストだけで完了と判断すると、熱による不安定化を見逃す",
+        "室温やケースエアフローによって結果が変わるため条件を記録しておく"
+      ],
+      "tools": ["ストレステストソフト", "温度監視ソフト", "ベンチマークソフト"],
+      "methods": ["24時間連続負荷試験(定石の検証時間)"],
+      "doneCriteria": [
+        "24時間の負荷テストをエラー・サーマルスロットリングなしで完走している",
+        "ベンチマークスコアがs1で想定した性能水準を満たしている"
+      ],
+      "verificationMethod": "stress-test-report.mdのログを本人が確認し、エラー0件・想定性能達成を確認する",
+      "inputs": ["s6で完成したOS環境"],
+      "dependsOn": ["s6"],
+      "estimate": { "time": "24h", "cost": "0 JPY" },
+      "risks": [
+        { "risk": "長時間負荷でサーマルスロットリングが発生する", "fallback": "ケースファン増設やCPUクーラーの再グリスアップで冷却強化。改善しなければs3まで差し戻してパーツ見直し" }
+      ],
+      "returnTo": "s3",
+      "owner": "human",
+      "freshness": "stable",
+      "research": { "required": false, "sources": [] }
+    }
+  ],
+  "meta": {
+    "sample": true,
+    "rounds": 2,
+    "fallbacks": [
+      { "stage": 1, "from": "local-llm", "to": "codex", "reason": "catalogIdの不正選択が2回続いたため(サンプル)" }
+    ],
+    "verifier": { "schemaCheck": "pass", "checklistScore": "9/10", "finalVerdict": "pass" },
+    "lessonCandidates": [
+      "電源とケースエアフローを軽視すると後段の負荷テストで差し戻しが起きやすい(サンプル所見)"
+    ]
+  }
+}
