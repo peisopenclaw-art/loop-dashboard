@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-07-02T09:00:00+09:00",
-  "previousRunAt": null,
+  "updatedAt": "2026-07-03T09:55:00Z",
+  "previousRunAt": "2026-07-02T09:00:00+09:00",
   "goal": {
     "text": "ひとことからロードマップを生成する",
     "stopConditions": [
@@ -9,105 +9,127 @@
       "ローカルLLMが同一段階で2回失敗したらCodexへ自動フォールバック",
       "生成⇄検証の往復は最大3回。超えたらerrorで人間判断待ち"
     ],
-    "progress": 0
+    "progress": 0.3
   },
   "tasks": [
     {
+      "id": "t0",
+      "title": "受信箱: アフィリエイト記事で収益をあげたい",
+      "status": "done",
+      "dependsOn": [],
+      "durationMs": 60000,
+      "retries": 0,
+      "skill": "inbox-watcher",
+      "summary": "手動ターン(RUNNER段階1)として処理"
+    },
+    {
       "id": "t1",
       "title": "段階0: 制約抽出",
-      "status": "todo",
-      "dependsOn": [],
-      "durationMs": 0,
+      "status": "done",
+      "dependsOn": [
+        "t0"
+      ],
+      "durationMs": 180000,
       "retries": 0,
       "skill": "constraint-extractor",
-      "summary": "目的・期限・予算・成功条件・やらないことを穴埋めフォームで埋める。未着手"
+      "summary": "予算・期間を仮置き、未回答の質問2件をopenQuestionsに"
     },
     {
       "id": "t2",
-      "title": "段階1: 類型化(型の選択)",
-      "status": "todo",
+      "title": "段階1: 類型化",
+      "status": "done",
       "dependsOn": [
         "t1"
       ],
-      "durationMs": 0,
+      "durationMs": 30000,
       "retries": 0,
       "skill": "type-selector",
-      "summary": "型カタログ(loops/_catalog/)から該当する型を選択する。未着手"
+      "summary": "収益化系(monetization)を選択"
     },
     {
       "id": "t3",
-      "title": "段階2: 型の展開",
-      "status": "todo",
+      "title": "段階2-3: 型の展開と鮮度調査",
+      "status": "done",
       "dependsOn": [
         "t2"
       ],
-      "durationMs": 0,
+      "durationMs": 900000,
       "retries": 0,
-      "skill": "template-expander",
-      "summary": "選んだ型の標準工程(枯れた知識)を列挙する。未着手"
+      "skill": "freshness-researcher",
+      "summary": "AI検索の影響・ASP現状・ステマ規制をWeb調査(出典付き)"
     },
     {
       "id": "t4",
-      "title": "段階3: 鮮度チェックとWeb調査",
-      "status": "todo",
+      "title": "段階R: 参照・アナロジー",
+      "status": "done",
       "dependsOn": [
         "t3"
       ],
-      "durationMs": 0,
+      "durationMs": 600000,
       "retries": 0,
-      "skill": "freshness-researcher",
-      "summary": "各工程に鮮度ラベルを付け、fresh工程だけをWeb調査する。未着手"
+      "skill": "reference-analogist",
+      "summary": "同土俵2件+YouTubeニッチ運営のアナロジー1件を抽出・転換"
     },
     {
       "id": "t5",
-      "title": "段階4: 今回の件への適用",
-      "status": "todo",
+      "title": "段階4-6: 適用⇄検証",
+      "status": "done",
       "dependsOn": [
         "t4"
       ],
-      "durationMs": 0,
-      "retries": 0,
+      "durationMs": 1500000,
+      "retries": 1,
       "skill": "applier",
-      "summary": "制約と調査結果を標準工程に差分編集で流し込む。未着手"
+      "summary": "検証役の指摘5件でrevise→修正→2周目でpass"
     },
     {
       "id": "t6",
-      "title": "段階5: 暗黙知の深掘り",
-      "status": "todo",
+      "title": "保存と公開ダッシュボード反映",
+      "status": "done",
       "dependsOn": [
         "t5"
       ],
-      "durationMs": 0,
+      "durationMs": 120000,
       "retries": 0,
-      "skill": "pitfall-diver",
-      "summary": "明文化されにくい失敗談・落とし穴を工程ごとに上位3件まで調査する。未着手"
-    },
-    {
-      "id": "t7",
-      "title": "段階6: 検証と確定",
-      "status": "todo",
-      "dependsOn": [
-        "t6"
-      ],
-      "durationMs": 0,
-      "retries": 0,
-      "skill": "verifier",
-      "summary": "スキーマ検証・チェックリスト検証を行い、人間への質問リストを添えて確定する。未着手"
+      "skill": "commander-integrate",
+      "summary": "roadmaps/2026-07-03-affiliate/ に保存"
     }
   ],
-  "changes": [],
+  "changes": [
+    {
+      "taskId": "t4",
+      "type": "added",
+      "from": null,
+      "to": "done",
+      "note": "初の実戦・段階R: ミニ四駆特化ブログ/Manablog/YouTubeニッチ運営から らしさ抽出と転換"
+    },
+    {
+      "taskId": "t5",
+      "type": "added",
+      "from": null,
+      "to": "done",
+      "note": "検証役がrevise(指摘5件)→全修正→2周目pass。ループの差し戻しが実戦で機能"
+    },
+    {
+      "taskId": "t6",
+      "type": "added",
+      "from": null,
+      "to": "done",
+      "note": "実物のロードマップがダッシュボードに表示可能に"
+    }
+  ],
   "bottlenecks": [],
   "errors": [],
   "skills": [
     {
       "name": "constraint-extractor",
-      "uses": 0,
-      "lastResult": null
+      "uses": 1,
+      "lastResult": "success"
     },
     {
       "name": "type-selector",
-      "uses": 0,
-      "lastResult": null
+      "uses": 1,
+      "lastResult": "success"
     },
     {
       "name": "template-expander",
@@ -116,13 +138,13 @@
     },
     {
       "name": "freshness-researcher",
-      "uses": 0,
-      "lastResult": null
+      "uses": 1,
+      "lastResult": "success"
     },
     {
       "name": "applier",
-      "uses": 0,
-      "lastResult": null
+      "uses": 1,
+      "lastResult": "success"
     },
     {
       "name": "pitfall-diver",
@@ -131,10 +153,31 @@
     },
     {
       "name": "verifier",
-      "uses": 0,
-      "lastResult": null
+      "uses": 1,
+      "lastResult": "success"
+    },
+    {
+      "name": "reference-analogist",
+      "uses": 1,
+      "lastResult": "success"
     }
   ],
-  "lessons": [],
-  "recommendations": []
+  "lessons": [
+    "returnTo(通常の戻り先)と撤退時の戻り先は別概念。両方をfallbackに明記する",
+    "doneCriteriaに『明確な』等の形容詞が入ったら曖昧サイン。成果物への追記の有無に置き換える"
+  ],
+  "recommendations": [
+    {
+      "type": "next_action",
+      "text": "ロードマップの未回答質問に答える: q1 体験を語れるジャンル候補 / q2 予算上限と初報酬の目標時期(現在は3ヶ月と仮置き)"
+    },
+    {
+      "type": "next_action",
+      "text": "s1(ジャンル選定)から実行開始。s2の飽和度チェックはループで自動化できる"
+    },
+    {
+      "type": "risk",
+      "text": "このターンは手動(Claudeセッション)実行。M1 MaxでのCodex+ローカルLLM自動実行(段階2)は未テスト"
+    }
+  ]
 }

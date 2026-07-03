@@ -1,0 +1,315 @@
+{
+  "schemaVersion": "1.0",
+  "createdAt": "2026-07-03T09:10:00Z",
+  "updatedAt": "2026-07-03T09:40:00Z",
+  "request": "アフィリエイト記事で収益をあげたい。",
+  "constraints": {
+    "goal": "アフィリエイト記事で収益を発生させる(最初の目標は金額ではなく初報酬)",
+    "deadline": null,
+    "budget": "月1,500円程度(レンタルサーバー+ドメイン)と仮定",
+    "successCriteria": [
+      "初報酬が1件発生する",
+      "同一フォーマットの記事10本を制作するループが回る",
+      "アフィリエイトリンクを含む全ページにPR表記がある"
+    ],
+    "notDoing": [
+      "金融・医療などYMYL高単価ジャンルへの参入(大手占有+E-E-A-T壁のため)",
+      "一次体験のない薄いAI記事の大量生成(2024年3月Googleスパムポリシーで明示的に違反)"
+    ],
+    "assumptions": [
+      { "text": "ジャンルは『スマホのみ生活×デジタル活用』の掛け算軸と仮定(ユーザー自身の一次体験を注入できるため)", "assumption": true },
+      { "text": "記事制作は既存の x-article-loop(生成→検証→承認ゲート)を使うと仮定", "assumption": true },
+      { "text": "初報酬までの目標期間は3ヶ月と仮定(超過した場合はs1へ戻る撤退判断を行う)", "assumption": true }
+    ],
+    "openQuestions": [
+      { "id": "q1", "question": "自分の体験を語れる/語りたいジャンル候補はどれか(例: スマホのみ生活、AI活用、他の趣味)?", "status": "open", "answer": null },
+      { "id": "q2", "question": "月の予算上限(サーバー代等)と、初報酬の目標時期はいつか?", "status": "open", "answer": null }
+    ]
+  },
+  "typeSelection": {
+    "catalogId": "monetization",
+    "name": "収益化系",
+    "reason": "コンテンツ経由の成果報酬で収益を得る典型例のため。制作系(記事そのもの)はこの型の1工程として内包される",
+    "confidence": "high",
+    "selectedBy": "commander-manual-turn"
+  },
+  "references": [
+    {
+      "id": "r1",
+      "kind": "same-domain",
+      "source": {
+        "type": "url",
+        "ref": "https://ryoenomoto.com/specialized-blog-site-design/",
+        "note": "ミニ四駆改造アカデミー(累計300万PVの趣味特化ブログ)の運営者による手法の言語化。収益額詳細は未確認(信頼度: 中)"
+      },
+      "essence": [
+        { "trait": "超ニッチ×購買直結の題材選定", "why": "YMYLと無縁で大手が参入せず、記事がそのままパーツ購入(物販)に直結する。体験情報なのでAI検索の要約にも吸われにくい" },
+        { "trait": "初心者→上級者の階段型サイト設計", "why": "入門記事で入口を作り上級ガイドで高額商品へ誘導する二層構造により、読者の成長に沿って客単価が上がる" },
+        { "trait": "一次体験の写真・実測データ", "why": "実際に手を動かした記録はAI要約では代替できず、E-E-A-Tの Experience を直接満たす" }
+      ],
+      "transfer": [
+        { "toStepId": "s1", "instruction": "ジャンルは『自分の一次体験を語れる超ニッチ×物販直結』の交点から選ぶ。大手メディアが上位のジャンルは候補から外す" },
+        { "toStepId": "s4", "instruction": "全記事に一次体験(実際に使った記録・スクショ・実測)を必須要素として組み込む" }
+      ],
+      "extractedBy": "codex"
+    },
+    {
+      "id": "r2",
+      "kind": "same-domain",
+      "source": {
+        "type": "url",
+        "ref": "https://www.afi-b.com/beginner/archives/tsushin/8670/",
+        "note": "Manablog(afb公式インタビューあり)。収益額は本人発信ベースで信頼度は中〜低。手法の言語化部分のみ参照する"
+      },
+      "essence": [
+        { "trait": "高単価×体験済み案件への集中", "why": "PV×CTR×CVRの分解で考えると、自分が使った分野の高単価案件数本に絞れば少ない成約でも売上が立つ" },
+        { "trait": "記事間リンクによるストック化", "why": "同一トピック内で記事が相互に支え合う構造は、更新を止めても検索評価と収益が残る資産になる" }
+      ],
+      "transfer": [
+        { "toStepId": "s3", "instruction": "提携案件は『自分が実際に使った/使えるもの』に限定して数本に絞る" },
+        { "toStepId": "s7", "instruction": "改善ループでは新規記事だけでなく既存記事間の内部リンク網の増強を毎回の作業項目に含める" }
+      ],
+      "extractedBy": "codex"
+    },
+    {
+      "id": "r3",
+      "kind": "analogy",
+      "source": {
+        "type": "url",
+        "ref": "https://tatap.jp/knowledge/youtube-niche-vending-strategy/",
+        "note": "YouTubeニッチチャンネル運営(別の土俵からの転用)"
+      },
+      "essence": [
+        { "trait": "ジャンルを2〜3軸の掛け算で細分化する", "why": "『料理』ではなく『ヴィーガン一人暮らし10分料理』にすると競合ゼロの土俵で1位が取れ、読者が「自分のための情報」と感じて定着する" },
+        { "trait": "一貫フォーマットのシリーズ化", "why": "同じ型の連続コンテンツが閲覧習慣(リピート)を作り、制作側もテンプレ化できて量産効率が上がる" },
+        { "trait": "参入前に飽和度を測る", "why": "既存競合の量と質を先に定量確認することで、勝てる土俵にだけ資源を投下できる" }
+      ],
+      "transfer": [
+        { "toStepId": "s2", "instruction": "キーワード調査に『AI Overviews表示の有無』と『上位が個人か企業か』の飽和度チェックを加え、体験型・比較型×個人上位の土俵だけを選ぶ。この調査はループで自動化する" },
+        { "toStepId": "s4", "instruction": "記事は『○○を実際に1週間使った採点レビュー』のような同一フォーマットのシリーズとして設計し、ループ基盤は量産ではなくフォーマット反復に使う" }
+      ],
+      "extractedBy": "codex"
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "title": "ジャンル選定(体験×超ニッチ×物販直結)",
+      "purpose": "AI検索時代でも吸われない、勝てる土俵を決める",
+      "activities": [
+        "自分の一次体験を語れる領域を列挙(スマホのみ生活、AI活用など)",
+        "掛け算ニッチ(2〜3軸)の候補を3つ作る",
+        "各候補の上位サイトが個人か大手かを確認"
+      ],
+      "deliverables": ["genre-decision.md(選定ジャンルと根拠、捨てた候補)"],
+      "cautions": [
+        "YMYL(金融・医療・美容の効能)は個人に不利なので避ける",
+        "『語れる体験がないジャンル』は高単価でも選ばない(E-E-A-T要件を満たせない)"
+      ],
+      "tools": ["Google検索(上位確認)", "roadmap-loopの調査結果"],
+      "methods": ["掛け算ニッチ選定(参照r3)", "体験×物販直結の交点選び(参照r1)"],
+      "doneCriteria": ["ジャンル1つと掛け算軸が文書で確定している", "openQuestions q1 に回答が入っている"],
+      "verificationMethod": "genre-decision.md を検証役がチェックリスト(体験を語れるか/大手不在か/物販直結か)で確認",
+      "inputs": ["ユーザーの体験領域(q1の回答)"],
+      "dependsOn": [],
+      "estimate": { "time": "2-3時間", "cost": "0円" },
+      "risks": [{ "risk": "ニッチすぎて案件が存在しない", "fallback": "物販(Amazon/楽天)を受け皿にする。物販ならほぼ全ジャンルに案件がある" }],
+      "returnTo": null,
+      "owner": "human",
+      "freshness": "stable",
+      "research": { "required": false, "sources": [] }
+    },
+    {
+      "id": "s2",
+      "title": "キーワード調査+飽和度チェック(ループで自動化)",
+      "purpose": "AI Overviewsに吸われない具体クエリの一覧を作る",
+      "activities": [
+        "体験型・比較型クエリを収集",
+        "各クエリでAI Overviews表示の有無と上位の個人/企業比率を記録",
+        "『AI非表示×個人上位』のクエリだけを記事候補リストに残す"
+      ],
+      "deliverables": ["keyword-list.md(クエリ、AI表示有無、飽和度、優先度)"],
+      "cautions": [
+        "『〇〇とは』系の情報クエリはAI Overviewsに最も吸われる(1位CTRが平均58%低下)ので優先しない",
+        "日本語クエリのAI表示率の正確な統計は未確認。必ず実クエリで個別確認する"
+      ],
+      "tools": ["Google検索(実クエリ確認)", "ループ基盤(調査の反復自動化)"],
+      "methods": ["飽和度の事前測定(参照r3の転用)"],
+      "doneCriteria": ["優先度付きクエリが20件以上リスト化されている", "各クエリにAI表示有無の実測メモがある"],
+      "verificationMethod": "リストから無作為に3クエリを再検索し、記録と一致するか検証役が確認",
+      "inputs": ["genre-decision.md"],
+      "dependsOn": ["s1"],
+      "estimate": { "time": "ループ実行で半日", "cost": "0円" },
+      "risks": [{ "risk": "AI非表示×個人上位のクエリがほぼ見つからない", "fallback": "s1に戻りニッチの軸を変更する" }],
+      "returnTo": "s1",
+      "owner": "codex",
+      "freshness": "fresh",
+      "research": {
+        "required": true,
+        "sources": [
+          { "url": "https://ahrefs.com/blog/ai-overviews-reduce-clicks-update/", "note": "AI Overviews表示時に1位CTRが平均58%低下(Ahrefs調査)" },
+          { "url": "https://www.searchenginejournal.com/impact-of-ai-overviews-how-publishers-need-to-adapt/556843/", "note": "体験型・比較型・検索外流入への適応論" }
+        ]
+      }
+    },
+    {
+      "id": "s3",
+      "title": "ASP登録と提携先選定(体験済み案件に絞る)",
+      "purpose": "収益の受け皿を最小の審査コストで用意する",
+      "activities": [
+        "A8.net登録(サイト審査なし、即日可)",
+        "もしもアフィリエイト登録(Amazon/楽天物販の受け皿)",
+        "体験済み/体験予定の案件を最大5件選定",
+        "10記事たまった時点でafb・バリューコマースを追加検討"
+      ],
+      "deliverables": ["asp-plan.md(登録ASP、選定案件、料率、選定理由)"],
+      "cautions": [
+        "もしものAmazon/楽天提携は『オリジナル10記事程度』が審査目安。記事が貯まってから申請する",
+        "高料率だけで案件を選ばない(承認率と体験可否のほうが効く)"
+      ],
+      "tools": ["A8.net", "もしもアフィリエイト"],
+      "methods": ["体験済み案件への集中(参照r2)"],
+      "doneCriteria": ["A8.netともしもに登録済み", "初期案件が最大5件、体験可否つきで決まっている"],
+      "verificationMethod": "asp-plan.md の全案件に『体験済み/体験予定日』の記載があるか確認",
+      "inputs": ["genre-decision.md"],
+      "dependsOn": ["s1"],
+      "estimate": { "time": "2時間", "cost": "0円" },
+      "risks": [{ "risk": "選定ジャンルに提携可能な案件がない", "fallback": "物販(もしも経由Amazon/楽天)に切り替え、s1のジャンル軸は維持する" }],
+      "returnTo": "s1",
+      "owner": "human",
+      "freshness": "fresh",
+      "research": {
+        "required": true,
+        "sources": [
+          { "url": "http://www.a8.net/faq/14.html", "note": "A8.netはサイト審査なしで登録可(公式FAQ)" },
+          { "url": "https://willfu.jp/affiliate-genre/", "note": "初心者向け領域(VOD・資料請求・物販)と高単価領域のYMYL壁" }
+        ]
+      }
+    },
+    {
+      "id": "s4",
+      "title": "記事制作(同一フォーマット×一次体験×x-article-loop)",
+      "purpose": "AI量産スパムにならない形で、検証済み記事を反復生産する",
+      "activities": [
+        "『実際に使った採点レビュー』等のシリーズフォーマットを1つ設計",
+        "x-article-loopの受信箱にクエリを投入し、生成→検証を回す",
+        "各記事に一次体験(スクショ・実測・使用感)を人間が注入",
+        "全記事の冒頭にPR表記を入れる"
+      ],
+      "deliverables": ["記事10本(同一フォーマット)", "article-format.md(シリーズの型定義)"],
+      "cautions": [
+        "AIで価値を付加しない大量生成は2024年3月からGoogleスパムポリシー違反。量ではなくフォーマット反復に使う",
+        "PR表記(『本ページはプロモーションが含まれています』)は認識しやすい冒頭位置に。表記漏れは提携解除リスク",
+        "AIが書けない部分=一次体験こそが差別化点。省略しない"
+      ],
+      "tools": ["x-article-loop(生成・検証・承認ゲート)", "WordPress等の公開基盤"],
+      "methods": ["一貫フォーマットのシリーズ化(参照r3)", "一次体験の注入(参照r1)", "feedback-translatorによる差し戻し"],
+      "doneCriteria": ["同一フォーマットの記事10本が検証passで公開済み", "全記事にPR表記と一次体験が含まれる"],
+      "verificationMethod": "検証役がチェックリスト(PR表記位置/一次体験の有無/フォーマット一致)で全記事を確認",
+      "inputs": ["keyword-list.md", "asp-plan.md"],
+      "dependsOn": ["s2", "s3"],
+      "estimate": { "time": "記事あたりループ1周+体験注入30分", "cost": "サーバー代 月1,500円程度" },
+      "risks": [{ "risk": "体験注入が追いつかず薄い記事が溜まる", "fallback": "公開ペースを落とす。未体験記事は公開承認ゲートで止める" }],
+      "returnTo": "s2",
+      "owner": "codex",
+      "freshness": "stable",
+      "research": { "required": false, "sources": [] }
+    },
+    {
+      "id": "s5",
+      "title": "公開承認ゲート(PR表記・品質・規制の最終確認)",
+      "purpose": "外部公開の前に人間が規制リスクを止める",
+      "activities": [
+        "PR表記の位置と文言の確認",
+        "体験の裏付けがない断定表現の除去",
+        "(将来ジャンルを広げて美容・健康系を扱う場合のみ)薬機法上の効能表現チェック。現方針ではnotDoingにより対象外のため通常は発生しない"
+      ],
+      "deliverables": ["公開承認記録(記事ごとのチェック結果)"],
+      "cautions": ["承認なしの自動公開はガードレール違反。ループは公開の手前で必ず止まる"],
+      "tools": ["ダッシュボード(承認待ちの可視化)"],
+      "methods": ["チェックリスト方式(yes/noのみ)"],
+      "doneCriteria": ["公開された全記事に承認記録がある"],
+      "verificationMethod": "公開記事と承認記録の突き合わせ",
+      "inputs": ["検証passの記事"],
+      "dependsOn": ["s4"],
+      "estimate": { "time": "記事あたり5分", "cost": "0円" },
+      "risks": [{ "risk": "承認が滞留してループが止まる", "fallback": "スマホから3タップで承認できる導線を整備する(ダッシュボード拡張)" }],
+      "returnTo": null,
+      "owner": "approval-gate",
+      "freshness": "stable",
+      "research": { "required": false, "sources": [] }
+    },
+    {
+      "id": "s6",
+      "title": "計測導入と検索外流入の設計",
+      "purpose": "何が効いたかを数字で判断できる状態にし、SEO一本足を避ける",
+      "activities": [
+        "Search Console + アクセス解析の導入",
+        "クリック計測(どの記事のどのリンクが踏まれたか)",
+        "X等のSNSでのシリーズ告知導線を1本設計"
+      ],
+      "deliverables": ["計測設定", "traffic-plan.md(検索外流入の設計)"],
+      "cautions": [
+        "AI検索時代は検索流入だけを前提にしない(ゼロクリック検索が過半の報告)。SNS・指名流入を最初から併設する",
+        "Search Consoleの所有権確認はスマホブラウザで完結できるHTMLタグ/メタタグ方式を使う(DNS方式はスマホでは煩雑)"
+      ],
+      "tools": ["Google Search Console", "アクセス解析", "X"],
+      "methods": ["流入経路の複線化"],
+      "doneCriteria": ["全記事のPV・クリック・成果が週次で確認できる"],
+      "verificationMethod": "ダッシュボード/レポートで実データが取得できているか確認",
+      "inputs": ["公開済み記事"],
+      "dependsOn": ["s5"],
+      "estimate": { "time": "3時間", "cost": "0円" },
+      "risks": [{ "risk": "計測を後回しにして改善判断ができない", "fallback": "最低限Search Consoleだけでも先に入れる" }],
+      "returnTo": null,
+      "owner": "human",
+      "freshness": "fresh",
+      "research": {
+        "required": true,
+        "sources": [
+          { "url": "https://thedigitalbloom.com/learn/2025-organic-traffic-crisis-analysis-report/", "note": "ゼロクリック検索が2025年に58.5%(米国)。検索外流入併設の根拠" }
+        ]
+      }
+    },
+    {
+      "id": "s7",
+      "title": "改善ループ運用(数字→差し戻し→教訓化)",
+      "purpose": "公開をゴールにせず、実データで次の一手に戻る",
+      "activities": [
+        "週次で計測データを確認し、伸びた記事のフォーマット要素を特定",
+        "伸びない記事はfeedback-translatorで差し戻して修正",
+        "記事間の内部リンク網を増強",
+        "得られた教訓をLESSONSに記録(採用はコマンダー判定)"
+      ],
+      "deliverables": ["週次改善記録", "更新されたkeyword-list.md"],
+      "cautions": ["同じ不満が2回出たら記事修正ではなく生成プロンプト(フォーマット定義)の欠陥として直す"],
+      "tools": ["ループ基盤", "feedback-translator", "計測データ"],
+      "methods": ["内部リンクのストック化(参照r2)", "外側のループ(教訓の蓄積)"],
+      "doneCriteria": [
+        "週次改善記録が2件以上存在する(=改善サイクルが2週連続で回っている)",
+        "初報酬が発生している、または『伸びた記事1本以上と伸びなかった記事1本以上の要因仮説』が keyword-list.md か article-format.md に追記されている"
+      ],
+      "verificationMethod": "週次記録の存在と、keyword-list/フォーマット定義への反映を確認",
+      "inputs": ["計測データ", "公開済み記事"],
+      "dependsOn": ["s6"],
+      "estimate": { "time": "週2時間", "cost": "0円" },
+      "risks": [{ "risk": "3ヶ月成果ゼロでモチベーション枯渇", "fallback": "撤退判断としてs1に戻りジャンルから再選定する(通常の改善はreturnTo=s2でキーワード軸の調整)。記事資産と教訓は次のジャンルへ持ち越せる" }],
+      "returnTo": "s2",
+      "owner": "codex",
+      "freshness": "stable",
+      "research": { "required": false, "sources": [] }
+    }
+  ],
+  "meta": {
+    "rounds": 2,
+    "fallbacks": [],
+    "verifier": { "schemaCheck": "pass", "checklistScore": "6/10 (round 1) → 10/10 (round 2)", "finalVerdict": "pass" },
+    "lessonCandidates": [
+      "returnTo(通常の戻り先)と撤退時の戻り先は別概念。fallback文言に両方を明記すると矛盾が出ない",
+      "doneCriteriaに『明確な』『十分な』等の形容詞が入ったら曖昧サイン。成果物への追記の有無に置き換える",
+      "リスク欄に出てくる具体的な数字(3ヶ月等)は、必ずassumptionsに根拠として仮置きする"
+    ],
+    "manualTurn": true,
+    "turnNote": "RUNNER.md段階1(手動ターン)としてClaudeセッションが実行。調査はSonnet、統合はコマンダー。実機ランナー(Codex+ローカルLLM)での自動実行は段階2で置き換える"
+  }
+}
