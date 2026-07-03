@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "1.0",
+  "updatedAt": "2026-07-02T00:55:00Z",
+  "previousRunAt": null,
+  "goal": {
+    "text": "受信箱のポスト/トピックから事実確認済みの解説記事を生成する",
+    "stopConditions": [
+      "1ターンで処理する受信箱アイテムは最大1件",
+      "生成⇄検証の往復は最大3回。超えたらerrorで人間判断待ち",
+      "同一アイテムのリトライは最大2回"
+    ],
+    "progress": 0.35
+  },
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "受信箱アイテムの取り込み(ループエンジニアリング解説)",
+      "status": "done",
+      "dependsOn": [],
+      "durationMs": 60000,
+      "retries": 0,
+      "skill": "inbox-watcher",
+      "summary": "inbox/2026-07-02-loop-engineering.md を選択。処理済みへ移動"
+    },
+    {
+      "id": "t2",
+      "title": "情報収集(Loop Engineering 原典と公式ドキュメント)",
+      "status": "done",
+      "dependsOn": ["t1"],
+      "durationMs": 240000,
+      "retries": 0,
+      "skill": "web-research",
+      "summary": "公式ドキュメント4本とGitHub要約を確認。原典(addyosmani.com)は403のため二次情報として扱った"
+    },
+    {
+      "id": "t3",
+      "title": "記事生成: 「ループエンジニアリングとは」解説",
+      "status": "done",
+      "dependsOn": ["t2"],
+      "durationMs": 300000,
+      "retries": 0,
+      "skill": "article-writer",
+      "summary": "Generator(Sonnet)が約3,800字のドラフトv1を執筆。出典は脚注7件"
+    },
+    {
+      "id": "t4",
+      "title": "検証: 事実確認・出典チェック・読者適合",
+      "status": "done",
+      "dependsOn": ["t3"],
+      "durationMs": 330000,
+      "retries": 0,
+      "skill": "fact-checker",
+      "summary": "Verifier(Sonnet)が出典7件を抜き取り検証し判定pass。修正往復は0回"
+    },
+    {
+      "id": "t5",
+      "title": "保存とコミット(articles/2026-07-02-loop-engineering.md)",
+      "status": "done",
+      "dependsOn": ["t4"],
+      "durationMs": 60000,
+      "retries": 0,
+      "skill": "commander-integrate",
+      "summary": "検証役の軽微提案(MCPの一言補足)を反映して保存。作業ブランチにコミット"
+    },
+    {
+      "id": "t6",
+      "title": "公開承認ゲート(ブログ/SNS公開はしない)",
+      "status": "todo",
+      "dependsOn": ["t5"],
+      "durationMs": 0,
+      "retries": 0,
+      "skill": "human-approval-gate",
+      "summary": "リポジトリ内保存まで完了。外部公開はユーザー承認があるまで行わない"
+    }
+  ],
+  "changes": [
+    {
+      "taskId": "t1",
+      "type": "added",
+      "from": null,
+      "to": "done",
+      "note": "ループ1周目を開始。最初のアイテムは「ループエンジニアリング解説」"
+    },
+    {
+      "taskId": "t3",
+      "type": "added",
+      "from": null,
+      "to": "done",
+      "note": "記事v1が完成(約3,800字、出典付き)"
+    },
+    {
+      "taskId": "t4",
+      "type": "added",
+      "from": null,
+      "to": "done",
+      "note": "検証judge=pass。差し戻し0回で通過"
+    },
+    {
+      "taskId": "t6",
+      "type": "added",
+      "from": null,
+      "to": "todo",
+      "note": "公開はユーザーの承認待ち(自動公開しない設定)"
+    }
+  ],
+  "bottlenecks": [
+    {
+      "taskId": "t2",
+      "reason": "一次ソース(addyosmani.com等)が403で読めず、二次情報の照合に時間がかかった",
+      "severity": "low"
+    }
+  ],
+  "errors": [],
+  "skills": [
+    { "name": "inbox-watcher", "uses": 1, "lastResult": "success" },
+    { "name": "web-research", "uses": 1, "lastResult": "success" },
+    { "name": "article-writer", "uses": 1, "lastResult": "success" },
+    { "name": "fact-checker", "uses": 1, "lastResult": "success" },
+    { "name": "commander-integrate", "uses": 1, "lastResult": "success" },
+    { "name": "human-approval-gate", "uses": 0, "lastResult": null }
+  ],
+  "lessons": [
+    "addyosmani.com等の個人ブログはbot対策の403が多い。GitHub上の要約リポジトリと公式ドキュメントは安定した典拠になる",
+    "一次ソースに到達できない場合は「二次情報経由」と記事に明記する運用が検証を通りやすい(今回差し戻し0回)",
+    "検証役の軽微提案(専門用語の一言補足)はコマンダーが統合時に反映すると往復が1回減る"
+  ],
+  "recommendations": [
+    {
+      "type": "next_action",
+      "text": "APIキー不要のランナー(run-turn.mjs、Codex App Server方式)を、Codexログイン済みの常時稼働マシンで実機テストする"
+    },
+    {
+      "type": "next_action",
+      "text": "スマホ閲覧用URLの方式を決める: リポジトリが非公開のため、公開用の小さな別リポジトリ(ダッシュボード+状態のみ)を作るのが推奨"
+    },
+    {
+      "type": "risk",
+      "text": "記事の外部公開は公開承認ゲート(t6)で停止中。承認しない限り公開されない"
+    }
+  ]
+}

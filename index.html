@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loop Dashboard</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside id="chat-pane" class="chat-pane">
+    <div class="chat-pane-inner">
+      <h2 class="chat-pane-title">チャット</h2>
+      <p class="chat-pane-placeholder">チャットは今後接続予定です。<br>ここに「ひとこと入力」欄が入ります。</p>
+    </div>
+  </aside>
+
+  <div id="dashboard-pane" class="dashboard-pane">
+    <header class="app-header">
+      <div class="app-header-top">
+        <h1 class="app-title">Loop Dashboard</h1>
+      </div>
+      <div id="loop-bar" class="loop-bar">
+        <span id="current-loop-name" class="current-loop-name" hidden></span>
+        <select id="loop-select" class="loop-select" hidden aria-label="ループを切替"></select>
+      </div>
+      <p id="last-updated" class="last-updated" aria-live="polite">読み込み中…</p>
+    </header>
+
+    <main id="main-content">
+
+      <div id="load-error" class="load-error" hidden role="alert"></div>
+
+      <section id="goal-section" class="card" aria-labelledby="goal-heading">
+        <h2 id="goal-heading" class="card-heading">ゴール</h2>
+        <p id="goal-text" class="goal-text">—</p>
+        <div class="progress-track" role="progressbar" id="goal-progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="goal-progress-fill" class="progress-fill"></div>
+        </div>
+        <p id="goal-progress-label" class="progress-label">—</p>
+        <details class="details-toggle">
+          <summary>停止条件を見る</summary>
+          <ul id="goal-stop-conditions" class="plain-list"></ul>
+        </details>
+      </section>
+
+      <section id="roadmap-section" class="card" aria-labelledby="roadmap-heading" hidden>
+        <h2 id="roadmap-heading" class="card-heading">ロードマップ</h2>
+        <p id="roadmap-request-text" class="roadmap-request-text"></p>
+        <div class="roadmap-type-row">
+          <span id="roadmap-type-name" class="roadmap-type-name"></span>
+          <span id="roadmap-type-confidence" class="badge"></span>
+        </div>
+        <ul id="roadmap-questions" class="roadmap-questions"></ul>
+        <ul id="roadmap-steps" class="roadmap-steps"></ul>
+        <p id="roadmap-fallback-note" class="roadmap-fallback-note" hidden></p>
+      </section>
+
+      <section id="diff-section" class="card" aria-labelledby="diff-heading">
+        <h2 id="diff-heading" class="card-heading">前回からの変化</h2>
+        <ul id="diff-list" class="diff-list"></ul>
+      </section>
+
+      <section id="kanban-section" aria-labelledby="kanban-heading">
+        <h2 id="kanban-heading" class="card-heading kanban-heading">計画(カンバン)</h2>
+        <div class="kanban-scroll">
+          <div class="kanban-board" id="kanban-board">
+            <!-- columns injected by app.js -->
+          </div>
+        </div>
+      </section>
+
+      <section id="bottleneck-section" class="card" aria-labelledby="bottleneck-heading">
+        <h2 id="bottleneck-heading" class="card-heading">ボトルネック</h2>
+        <ul id="bottleneck-list" class="stack-list"></ul>
+      </section>
+
+      <section id="error-section" class="card" aria-labelledby="error-heading">
+        <h2 id="error-heading" class="card-heading">エラー詳細</h2>
+        <ul id="error-list" class="stack-list"></ul>
+      </section>
+
+      <section id="skills-section" class="card" aria-labelledby="skills-heading">
+        <h2 id="skills-heading" class="card-heading">スキル / 教訓</h2>
+        <h3 class="card-subheading">適用スキル</h3>
+        <ul id="skills-list" class="chip-list"></ul>
+        <h3 class="card-subheading">今回の教訓(外側のループ)</h3>
+        <ul id="lessons-list" class="plain-list"></ul>
+      </section>
+
+      <section id="recommendations-section" class="card" aria-labelledby="recommendations-heading">
+        <h2 id="recommendations-heading" class="card-heading">おすすめ</h2>
+        <ul id="recommendations-list" class="stack-list"></ul>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="./app.js"></script>
+</body>
+</html>

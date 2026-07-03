@@ -1,0 +1,140 @@
+{
+  "schemaVersion": "1.0",
+  "updatedAt": "2026-07-02T09:00:00+09:00",
+  "previousRunAt": null,
+  "goal": {
+    "text": "ひとことからロードマップを生成する",
+    "stopConditions": [
+      "暗黙知の深掘りは工程ごとに上位3件まで、または新情報が2連続で出なくなったら打ち切り",
+      "ローカルLLMが同一段階で2回失敗したらCodexへ自動フォールバック",
+      "生成⇄検証の往復は最大3回。超えたらerrorで人間判断待ち"
+    ],
+    "progress": 0
+  },
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "段階0: 制約抽出",
+      "status": "todo",
+      "dependsOn": [],
+      "durationMs": 0,
+      "retries": 0,
+      "skill": "constraint-extractor",
+      "summary": "目的・期限・予算・成功条件・やらないことを穴埋めフォームで埋める。未着手"
+    },
+    {
+      "id": "t2",
+      "title": "段階1: 類型化(型の選択)",
+      "status": "todo",
+      "dependsOn": [
+        "t1"
+      ],
+      "durationMs": 0,
+      "retries": 0,
+      "skill": "type-selector",
+      "summary": "型カタログ(loops/_catalog/)から該当する型を選択する。未着手"
+    },
+    {
+      "id": "t3",
+      "title": "段階2: 型の展開",
+      "status": "todo",
+      "dependsOn": [
+        "t2"
+      ],
+      "durationMs": 0,
+      "retries": 0,
+      "skill": "template-expander",
+      "summary": "選んだ型の標準工程(枯れた知識)を列挙する。未着手"
+    },
+    {
+      "id": "t4",
+      "title": "段階3: 鮮度チェックとWeb調査",
+      "status": "todo",
+      "dependsOn": [
+        "t3"
+      ],
+      "durationMs": 0,
+      "retries": 0,
+      "skill": "freshness-researcher",
+      "summary": "各工程に鮮度ラベルを付け、fresh工程だけをWeb調査する。未着手"
+    },
+    {
+      "id": "t5",
+      "title": "段階4: 今回の件への適用",
+      "status": "todo",
+      "dependsOn": [
+        "t4"
+      ],
+      "durationMs": 0,
+      "retries": 0,
+      "skill": "applier",
+      "summary": "制約と調査結果を標準工程に差分編集で流し込む。未着手"
+    },
+    {
+      "id": "t6",
+      "title": "段階5: 暗黙知の深掘り",
+      "status": "todo",
+      "dependsOn": [
+        "t5"
+      ],
+      "durationMs": 0,
+      "retries": 0,
+      "skill": "pitfall-diver",
+      "summary": "明文化されにくい失敗談・落とし穴を工程ごとに上位3件まで調査する。未着手"
+    },
+    {
+      "id": "t7",
+      "title": "段階6: 検証と確定",
+      "status": "todo",
+      "dependsOn": [
+        "t6"
+      ],
+      "durationMs": 0,
+      "retries": 0,
+      "skill": "verifier",
+      "summary": "スキーマ検証・チェックリスト検証を行い、人間への質問リストを添えて確定する。未着手"
+    }
+  ],
+  "changes": [],
+  "bottlenecks": [],
+  "errors": [],
+  "skills": [
+    {
+      "name": "constraint-extractor",
+      "uses": 0,
+      "lastResult": null
+    },
+    {
+      "name": "type-selector",
+      "uses": 0,
+      "lastResult": null
+    },
+    {
+      "name": "template-expander",
+      "uses": 0,
+      "lastResult": null
+    },
+    {
+      "name": "freshness-researcher",
+      "uses": 0,
+      "lastResult": null
+    },
+    {
+      "name": "applier",
+      "uses": 0,
+      "lastResult": null
+    },
+    {
+      "name": "pitfall-diver",
+      "uses": 0,
+      "lastResult": null
+    },
+    {
+      "name": "verifier",
+      "uses": 0,
+      "lastResult": null
+    }
+  ],
+  "lessons": [],
+  "recommendations": []
+}

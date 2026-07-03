@@ -1,0 +1,21 @@
+{
+  "defaultLoop": "x-article-loop",
+  "loops": [
+    {
+      "id": "x-article-loop",
+      "name": "X記事生成ループ",
+      "statePath": "./loops/x-article-loop/state/loop-state.json"
+    },
+    {
+      "id": "roadmap-loop",
+      "name": "ロードマップ生成ループ",
+      "statePath": "./loops/roadmap-loop/state/loop-state.json",
+      "roadmapPath": "../loops/roadmap-loop/roadmaps/2026-07-02-pc-build-sample/roadmap.json"
+    },
+    {
+      "id": "sample",
+      "name": "サンプル(デモデータ)",
+      "statePath": "./state/loop-state.json"
+    }
+  ]
+}

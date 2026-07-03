@@ -1,0 +1,724 @@
+/* Loop Dashboard - mobile-first, no framework
+   Design intent: cognitive load reduction. See README.md / STATE_SCHEMA.md. */
+
+:root {
+  --color-bg: #f4f5f7;
+  --color-surface: #ffffff;
+  --color-border: #e2e4e9;
+  --color-text: #1f2430;
+  --color-text-muted: #5b6270;
+  --color-accent: #3b5bdb;
+
+  /* status colors: light background chip + dark text, tuned for WCAG AA (>= 4.5:1) */
+  --status-todo-bg: #e5e7eb;
+  --status-todo-text: #374151;
+  --status-doing-bg: #dbeafe;
+  --status-doing-text: #1e3a8a;
+  --status-review-bg: #fef3c7;
+  --status-review-text: #78350f;
+  --status-done-bg: #dcfce7;
+  --status-done-text: #14532d;
+  --status-error-bg: #fee2e2;
+  --status-error-text: #7f1d1d;
+
+  --severity-high-border: #dc2626;
+  --severity-medium-border: #d97706;
+
+  --radius: 12px;
+  --gap: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden; /* prevent accidental horizontal scroll of the page itself */
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, -apple-system, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  font-weight: 700;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ---------- Layout ---------- */
+
+.layout {
+  display: block;
+  max-width: 100%;
+}
+
+.chat-pane {
+  display: none;
+}
+
+.dashboard-pane {
+  max-width: 100%;
+  padding: 16px 14px 40px;
+  margin: 0 auto;
+}
+
+@media (min-width: 900px) {
+  html, body {
+    height: 100%;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    height: 100vh;
+  }
+
+  .chat-pane {
+    display: block;
+    border-right: 1px solid var(--color-border);
+    background: var(--color-surface);
+    overflow-y: auto;
+    height: 100vh;
+  }
+
+  .chat-pane-inner {
+    padding: 24px 20px;
+  }
+
+  .chat-pane-title {
+    font-size: 16px;
+    color: var(--color-text);
+    margin-bottom: 10px;
+  }
+
+  .chat-pane-placeholder {
+    color: var(--color-text-muted);
+    font-size: 14px;
+  }
+
+  .dashboard-pane {
+    height: 100vh;
+    overflow-y: auto;
+    padding: 24px 32px 48px;
+  }
+
+  #main-content {
+    max-width: 880px;
+    margin: 0 auto;
+  }
+}
+
+/* ---------- Header ---------- */
+
+.app-header {
+  margin-bottom: 16px;
+}
+
+.app-header-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.app-title {
+  font-size: 20px;
+  letter-spacing: 0.01em;
+}
+
+.last-updated {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Loop bar (loop name + switcher) ---------- */
+
+.loop-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-top: 6px;
+}
+
+.current-loop-name {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-accent);
+  background: #eaefff;
+  border-radius: 999px;
+  padding: 3px 10px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.loop-select {
+  font-size: 12.5px;
+  font-family: inherit;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 3px 8px;
+  max-width: 100%;
+}
+
+.current-loop-name[hidden],
+.loop-select[hidden] {
+  display: none;
+}
+
+/* ---------- Load error ---------- */
+
+.load-error {
+  background: var(--status-error-bg);
+  color: var(--status-error-text);
+  border: 1px solid #fca5a5;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: var(--gap);
+  font-size: 14px;
+}
+
+/* ---------- Cards (shared) ---------- */
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: var(--gap);
+}
+
+.card-heading {
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+
+.card-subheading {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 14px 0 8px;
+  font-weight: 600;
+}
+
+.card-subheading:first-of-type {
+  margin-top: 4px;
+}
+
+/* ---------- Goal section ---------- */
+
+.goal-text {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.progress-track {
+  width: 100%;
+  height: 10px;
+  background: #eceef2;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: 999px;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.progress-label {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.details-toggle {
+  margin-top: 10px;
+}
+
+.details-toggle summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.plain-list li {
+  padding: 6px 0;
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.plain-list li:last-child {
+  border-bottom: none;
+}
+
+/* ---------- Roadmap section ---------- */
+
+.roadmap-request-text {
+  margin: 0 0 8px;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.roadmap-type-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin-bottom: 12px;
+}
+
+.roadmap-type-name {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-accent);
+  background: #eaefff;
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+.roadmap-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.roadmap-questions[hidden] {
+  display: none;
+}
+
+.roadmap-question-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--status-review-bg);
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13.5px;
+}
+
+.roadmap-question-label {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--status-review-text);
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.roadmap-question-text {
+  color: var(--status-review-text);
+  font-weight: 600;
+}
+
+.roadmap-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.roadmap-step {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 9px 10px;
+}
+
+.roadmap-step summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+}
+
+.roadmap-step summary::-webkit-details-marker {
+  display: none;
+}
+
+.roadmap-step summary::before {
+  content: "▸";
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.roadmap-step[open] summary::before {
+  content: "▾";
+}
+
+.roadmap-step-title {
+  font-weight: 600;
+  min-width: 0;
+}
+
+.roadmap-step-depends {
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.roadmap-owner-badge {
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+.freshness-stable { background: var(--status-todo-bg); color: var(--status-todo-text); }
+.freshness-fresh { background: var(--status-doing-bg); color: var(--status-doing-text); }
+.freshness-unverified { background: var(--status-review-bg); color: var(--status-review-text); }
+
+.roadmap-step-body {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.roadmap-field {
+  margin-bottom: 8px;
+}
+
+.roadmap-field:last-child {
+  margin-bottom: 0;
+}
+
+.roadmap-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 3px;
+}
+
+.roadmap-field p {
+  margin: 0;
+}
+
+.roadmap-field a {
+  color: var(--color-accent);
+  word-break: break-all;
+}
+
+.roadmap-fallback-note {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px dashed var(--color-border);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+/* ---------- Diff section ---------- */
+
+.diff-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 13.5px;
+}
+
+.diff-list li:last-child {
+  border-bottom: none;
+}
+
+.diff-empty {
+  color: var(--color-text-muted);
+  font-size: 13.5px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badge-todo { background: var(--status-todo-bg); color: var(--status-todo-text); }
+.badge-doing { background: var(--status-doing-bg); color: var(--status-doing-text); }
+.badge-review { background: var(--status-review-bg); color: var(--status-review-text); }
+.badge-done { background: var(--status-done-bg); color: var(--status-done-text); }
+.badge-error { background: var(--status-error-bg); color: var(--status-error-text); }
+
+.diff-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.diff-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.diff-note {
+  color: var(--color-text-muted);
+}
+
+.diff-transition {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-bottom: 2px;
+}
+
+/* ---------- Kanban ---------- */
+
+.kanban-heading {
+  padding: 0 2px;
+}
+
+.kanban-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 6px;
+  margin: 0 -2px;
+  scrollbar-width: thin;
+}
+
+.kanban-board {
+  display: flex;
+  gap: 10px;
+  padding: 2px;
+  min-width: min-content;
+}
+
+.kanban-column {
+  flex: 0 0 250px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kanban-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 4px 6px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.kanban-column-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.kanban-column-count {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+.kanban-empty {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+  padding: 8px 4px;
+}
+
+.task-card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 9px 10px;
+}
+
+.task-card summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.task-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.task-card summary::before {
+  content: "▸";
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.task-card[open] summary::before {
+  content: "▾";
+}
+
+.task-card-body {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.task-card-body p {
+  margin: 0 0 6px;
+}
+
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  font-size: 11.5px;
+}
+
+.task-meta span {
+  white-space: nowrap;
+}
+
+/* ---------- Stack list (bottleneck / error / recommendations) ---------- */
+
+.stack-list li {
+  border: 1px solid var(--color-border);
+  border-left-width: 4px;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-size: 13.5px;
+}
+
+.stack-list li:last-child {
+  margin-bottom: 0;
+}
+
+.stack-list .item-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.stack-list .item-title {
+  font-weight: 600;
+}
+
+.severity-high { border-left-color: var(--severity-high-border); }
+.severity-medium { border-left-color: var(--severity-medium-border); }
+
+.empty-note {
+  color: var(--color-text-muted);
+  font-size: 13.5px;
+}
+
+/* error detail cards */
+
+.error-card details summary {
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--color-accent);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.error-card-cause,
+.error-card-action {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.error-card-action strong {
+  color: var(--color-text);
+}
+
+/* recommendation type badges */
+
+.rec-type {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- Skills / lessons ---------- */
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 12.5px;
+  background: var(--color-bg);
+}
+
+.skill-chip .skill-name {
+  font-weight: 600;
+}
+
+.skill-chip .skill-uses {
+  color: var(--color-text-muted);
+}
+
+.skill-result-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.skill-result-success { background: var(--status-done-text); }
+.skill-result-partial_failure { background: var(--severity-medium-border); }
+.skill-result-failure { background: var(--status-error-text); }
+
+/* ---------- Responsive tweaks ---------- */
+
+@media (max-width: 899px) {
+  .kanban-column {
+    flex-basis: 78vw;
+    max-width: 320px;
+  }
+}

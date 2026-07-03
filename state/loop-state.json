@@ -1,0 +1,166 @@
+{
+  "schemaVersion": "1.0",
+  "updatedAt": "2026-07-01T14:32:00+09:00",
+  "previousRunAt": "2026-07-01T08:15:00+09:00",
+  "goal": {
+    "text": "Xブックマークから解説記事を自動生成する",
+    "stopConditions": [
+      "最大実行回数: 1日20回",
+      "最大実行時間: 1回あたり30分",
+      "同一原因のエラーが3回続いたら自動停止"
+    ],
+    "progress": 0.55
+  },
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Issue受信箱からURLを取り込み",
+      "status": "done",
+      "dependsOn": [],
+      "durationMs": 4200,
+      "retries": 0,
+      "skill": "inbox-watcher",
+      "summary": "新規3件のブックマークURLを検出し取り込み完了"
+    },
+    {
+      "id": "t2",
+      "title": "関連情報の収集(元ポスト・スレッド・引用元)",
+      "status": "done",
+      "dependsOn": ["t1"],
+      "durationMs": 18300,
+      "retries": 0,
+      "skill": "web-research",
+      "summary": "3件分の背景情報収集が完了"
+    },
+    {
+      "id": "t3",
+      "title": "記事生成: 「エージェントループ設計」解説",
+      "status": "done",
+      "dependsOn": ["t2"],
+      "durationMs": 52000,
+      "retries": 0,
+      "skill": "article-writer",
+      "summary": "下書きが完成。現在ファクトチェックへ回している"
+    },
+    {
+      "id": "t4",
+      "title": "記事生成: 「ベクトルDB比較」解説",
+      "status": "doing",
+      "dependsOn": ["t2"],
+      "durationMs": 31000,
+      "retries": 1,
+      "skill": "article-writer",
+      "summary": "生成中(約60%)。長文の元スレッドで所要時間が伸びている"
+    },
+    {
+      "id": "t5",
+      "title": "記事生成: 「LLM評価指標」解説",
+      "status": "error",
+      "dependsOn": ["t2"],
+      "durationMs": 9100,
+      "retries": 2,
+      "skill": "article-writer",
+      "summary": "引用元リンク切れにより生成に失敗(2回リトライ済み)"
+    },
+    {
+      "id": "t6",
+      "title": "検証役によるファクトチェック",
+      "status": "review",
+      "dependsOn": ["t3"],
+      "durationMs": 15400,
+      "retries": 0,
+      "skill": "fact-checker",
+      "summary": "「エージェントループ設計」の下書きをレビュー中"
+    },
+    {
+      "id": "t7",
+      "title": "公開承認ゲート",
+      "status": "todo",
+      "dependsOn": ["t6"],
+      "durationMs": 0,
+      "retries": 0,
+      "skill": "human-approval-gate",
+      "summary": "検証完了後、人間の承認を待って公開(自動公開はしない)"
+    }
+  ],
+  "changes": [
+    {
+      "taskId": "t2",
+      "type": "status_changed",
+      "from": "doing",
+      "to": "done",
+      "note": "関連情報の収集が完了し、3件の記事生成に着手した"
+    },
+    {
+      "taskId": "t4",
+      "type": "added",
+      "from": null,
+      "to": "doing",
+      "note": "新規記事「ベクトルDB比較」の生成を開始"
+    },
+    {
+      "taskId": "t5",
+      "type": "status_changed",
+      "from": "doing",
+      "to": "error",
+      "note": "リンク切れが原因で2回目のリトライも失敗"
+    },
+    {
+      "taskId": "t6",
+      "type": "added",
+      "from": null,
+      "to": "review",
+      "note": "検証役によるレビューを新規開始"
+    }
+  ],
+  "bottlenecks": [
+    {
+      "taskId": "t4",
+      "reason": "生成時間が過去平均(約13秒)の2倍超。長文プロンプトが原因の可能性",
+      "severity": "medium"
+    },
+    {
+      "taskId": "t5",
+      "reason": "同一原因のエラーで2回リトライ済み。次に失敗すると停止条件により自動停止する",
+      "severity": "high"
+    }
+  ],
+  "errors": [
+    {
+      "taskId": "t5",
+      "message": "引用元URLが404 Not Found",
+      "cause": "元ポストが引用していた記事ページが削除済みだった",
+      "action": "リトライ2回失敗。web.archive.orgからの取得をフォールバックとして追加予定(未着手)"
+    }
+  ],
+  "skills": [
+    { "name": "inbox-watcher", "uses": 12, "lastResult": "success" },
+    { "name": "web-research", "uses": 11, "lastResult": "success" },
+    { "name": "article-writer", "uses": 9, "lastResult": "partial_failure" },
+    { "name": "fact-checker", "uses": 6, "lastResult": "success" },
+    { "name": "human-approval-gate", "uses": 3, "lastResult": "success" }
+  ],
+  "lessons": [
+    "引用元リンクが404になるケースが増えている。取得前にarchive.orgへのフォールバックを挟むと成功率が上がりそう",
+    "長文の元スレッドは生成時間が伸びる。文字数に応じてタイムアウト閾値を可変にすべき",
+    "検証役に渡す前に出典リストを自動添付するようにしたら、差し戻しの回数が減った"
+  ],
+  "recommendations": [
+    {
+      "type": "new_skill",
+      "text": "リンク切れ対策として、web.archive.orgフォールバック取得スキルを追加する"
+    },
+    {
+      "type": "next_action",
+      "text": "「ベクトルDB比較」の生成が停止条件(30分)に近づいている。進捗を確認するか記事を分割することを検討"
+    },
+    {
+      "type": "risk",
+      "text": "「LLM評価指標」のエラーが次にも起きると自動停止する設定。放置すると当該記事はスキップされる"
+    },
+    {
+      "type": "cost",
+      "text": "web-researchの呼び出し回数が増加傾向。今週中にAPI利用量を確認"
+    }
+  ]
+}
