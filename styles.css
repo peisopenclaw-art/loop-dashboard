@@ -23,6 +23,7 @@
 
   --severity-high-border: #dc2626;
   --severity-medium-border: #d97706;
+  --severity-low-border: #6b7280;
 
   --radius: 12px;
   --gap: 12px;
@@ -703,6 +704,7 @@ ul {
 
 .severity-high { border-left-color: var(--severity-high-border); }
 .severity-medium { border-left-color: var(--severity-medium-border); }
+.severity-low { border-left-color: var(--severity-low-border); }
 
 .empty-note {
   color: var(--color-text-muted);

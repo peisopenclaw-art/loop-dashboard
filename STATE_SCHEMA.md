@@ -68,7 +68,7 @@ Loop Dashboard(`loop-app/`)はこのファイルを `fetch` で読み込み、
 | --- | --- | --- |
 | `taskId` | string | 対象タスクID |
 | `reason` | string | 詰まっている理由(所要時間の超過・リトライ多発など)を1〜2文で |
-| `severity` | `"high" \| "medium"` | 警告の強さ。UIの左ボーダー色とバッジに反映 |
+| `severity` | `"high" \| "medium" \| "low"` | 警告の強さ。UIの左ボーダー色とバッジに反映(重度/中度/軽度) |
 
 ## `errors[]` (ErrorItem)
 

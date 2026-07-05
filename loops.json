@@ -1,16 +1,23 @@
 {
-  "defaultLoop": "x-article-loop",
+  "defaultLoop": "roadmap-loop",
   "loops": [
     {
       "id": "x-article-loop",
       "name": "X記事生成ループ",
-      "statePath": "./loops/x-article-loop/state/loop-state.json"
+      "statePath": "./loops/x-article-loop/state/loop-state.json",
+      "runners": {
+        "turn": "run-turn.mjs",
+        "revision": "run-revision.mjs"
+      }
     },
     {
       "id": "roadmap-loop",
       "name": "ロードマップ生成ループ",
       "statePath": "./loops/roadmap-loop/state/loop-state.json",
-      "roadmapPath": "./loops/roadmap-loop/roadmaps/2026-07-03-affiliate/roadmap.json"
+      "roadmapPath": "./loops/roadmap-loop/roadmaps/2026-07-03-affiliate/roadmap.json",
+      "runners": {
+        "turn": "run-roadmap.mjs"
+      }
     },
     {
       "id": "sample",
