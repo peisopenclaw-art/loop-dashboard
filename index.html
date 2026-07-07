@@ -8,13 +8,47 @@
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-<div class="layout">
+<div id="app-layout" class="layout">
 
-  <aside id="chat-pane" class="chat-pane">
-    <div class="chat-pane-inner">
-      <h2 class="chat-pane-title">チャット</h2>
-      <p class="chat-pane-placeholder">チャットは今後接続予定です。<br>ここに「ひとこと入力」欄が入ります。</p>
-    </div>
+  <aside id="chat-pane" class="chat-pane" hidden>
+    <details id="ops-details" class="ops-details" open>
+      <summary class="ops-summary">
+        操作
+        <span id="ops-connection-dot" class="ops-dot" aria-hidden="true"></span>
+        <span id="ops-connection-label" class="ops-connection-label">接続確認中…</span>
+      </summary>
+      <div class="chat-pane-inner">
+
+        <section class="ops-block" aria-labelledby="ops-inbox-heading">
+          <h2 id="ops-inbox-heading" class="ops-block-heading">ひとこと入力</h2>
+          <form id="ops-inbox-form">
+            <label class="ops-label" for="ops-inbox-loop">投入先ループ</label>
+            <select id="ops-inbox-loop" class="ops-select"></select>
+
+            <label class="ops-label" for="ops-inbox-text">やりたいこと</label>
+            <textarea id="ops-inbox-text" class="ops-textarea" rows="4"
+              placeholder="やりたいことをひとことで。『〇〇みたいに』も書ける"></textarea>
+
+            <label class="ops-label" for="ops-inbox-reference">参照(任意)</label>
+            <input id="ops-inbox-reference" class="ops-input" type="text" placeholder="URL または テキスト">
+
+            <button type="submit" id="ops-inbox-submit" class="ops-button">受信箱に入れる</button>
+            <p id="ops-inbox-status" class="ops-status-text" role="status" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <section class="ops-block" aria-labelledby="ops-run-heading">
+          <h2 id="ops-run-heading" class="ops-block-heading">実行</h2>
+          <p class="ops-note">
+            実行はエンジンPCで行う。このUIからは動作確認のため常にdry-run(Codex/ローカルLLMを起動しない)で実行する。
+          </p>
+          <button type="button" id="ops-run-button" class="ops-button ops-button-primary">1ターン実行(dry-run)</button>
+          <p id="ops-run-status" class="ops-status-text" role="status" aria-live="polite">—</p>
+        </section>
+
+        <p class="ops-footnote">差し戻し・承認・保存/同期は今後の実装予定。</p>
+      </div>
+    </details>
   </aside>
 
   <div id="dashboard-pane" class="dashboard-pane">

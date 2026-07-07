@@ -77,6 +77,9 @@
     "user-specified": "badge-review",
   };
 
+  // 現在ダッシュボードに表示中のループ(操作列の「実行」完了時に再fetchするため)。
+  let currentDashboard = { statePath: null, roadmapPath: null };
+
   document.addEventListener("DOMContentLoaded", init);
 
   function init() {
@@ -84,9 +87,12 @@
       const resolved = resolveLoop(config);
       setupLoopSwitcher(resolved.loops, resolved.selectedId);
       renderCurrentLoopName(resolved.selectedLoop && resolved.selectedLoop.name);
+      currentDashboard.statePath = resolved.statePath;
+      currentDashboard.roadmapPath = resolved.selectedLoop && resolved.selectedLoop.roadmapPath;
       loadState(resolved.statePath);
-      loadRoadmap(resolved.selectedLoop && resolved.selectedLoop.roadmapPath);
+      loadRoadmap(currentDashboard.roadmapPath);
     });
+    initConsole();
   }
 
   // Fetches loops.json. Returns the parsed config, or null if the file is
@@ -941,5 +947,287 @@
 
       list.appendChild(li);
     });
+  }
+
+  // ---------------------------------------------------------------------
+  // 操作列(loop-console接続時のみ活性化)
+  //
+  // 起動時に GET /api/loops を試行し、200なら操作列を表示する。失敗(静的
+  // Pages配信でloop-consoleが存在しない等)なら操作列は最初からある hidden
+  // 属性のまま何もしない = 既存の閲覧専用ダッシュボードがそのまま動く
+  // (グレースフルデグレード。03章6節)。
+  // ---------------------------------------------------------------------
+
+  const CONSOLE_API_LOOPS = "/api/loops";
+  const CONSOLE_API_INBOX = "/api/inbox";
+  const CONSOLE_API_RUN = "/api/run";
+  const CONSOLE_API_RUN_STATUS = "/api/run/status";
+  const CONSOLE_POLL_INTERVAL_MS = 5000;
+
+  let consolePollTimer = null;
+
+  function initConsole() {
+    fetch(CONSOLE_API_LOOPS, { cache: "no-store" })
+      .then((res) => {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      })
+      .then((data) => {
+        if (!data || data.ok !== true || !Array.isArray(data.loops)) {
+          throw new Error("malformed /api/loops response");
+        }
+        activateConsole(data);
+      })
+      .catch(() => {
+        // 接続できない: 操作列は非表示のまま(閲覧モードとして完全動作)
+      });
+  }
+
+  function activateConsole(data) {
+    const layout = document.getElementById("app-layout");
+    const pane = document.getElementById("chat-pane");
+    if (!layout || !pane) return;
+
+    pane.hidden = false;
+    pane.classList.add("is-active");
+    layout.classList.add("console-active");
+
+    setOpsConnectionStatus(true);
+    populateOpsLoopSelect(data.loops, data.defaultLoop);
+    wireInboxForm();
+    wireRunButton();
+    refreshRunStatusForSelectedLoop();
+  }
+
+  function setOpsConnectionStatus(connected) {
+    const dot = document.getElementById("ops-connection-dot");
+    const label = document.getElementById("ops-connection-label");
+    if (!dot || !label) return;
+    if (connected) {
+      dot.className = "ops-dot ops-dot-connected";
+      label.textContent = "エンジン接続中";
+    } else {
+      dot.className = "ops-dot ops-dot-error";
+      label.textContent = "閲覧モード(操作はエンジンPCで)";
+    }
+  }
+
+  function populateOpsLoopSelect(loops, defaultLoopId) {
+    const select = document.getElementById("ops-inbox-loop");
+    if (!select) return;
+    select.innerHTML = "";
+    (loops || []).forEach((l) => {
+      const opt = document.createElement("option");
+      opt.value = l.id;
+      opt.textContent = l.name || l.id;
+      if (l.id === defaultLoopId) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.addEventListener("change", () => {
+      refreshRunStatusForSelectedLoop();
+    });
+  }
+
+  function wireInboxForm() {
+    const form = document.getElementById("ops-inbox-form");
+    if (!form) return;
+    form.addEventListener("submit", (evt) => {
+      evt.preventDefault();
+      submitInbox();
+    });
+  }
+
+  function submitInbox() {
+    const loopSelect = document.getElementById("ops-inbox-loop");
+    const textEl = document.getElementById("ops-inbox-text");
+    const refEl = document.getElementById("ops-inbox-reference");
+    const statusEl = document.getElementById("ops-inbox-status");
+    const submitBtn = document.getElementById("ops-inbox-submit");
+    if (!loopSelect || !textEl || !statusEl || !submitBtn) return;
+
+    const loopId = loopSelect.value;
+    const text = textEl.value.trim();
+    if (!text) {
+      statusEl.textContent = "本文を入力してください。";
+      statusEl.className = "ops-status-text ops-status-error";
+      return;
+    }
+
+    submitBtn.disabled = true;
+    statusEl.textContent = "送信中…";
+    statusEl.className = "ops-status-text";
+
+    const payload = { loopId: loopId, text: text };
+    const reference = refEl && refEl.value.trim();
+    if (reference) payload.reference = reference;
+
+    fetch(CONSOLE_API_INBOX, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+      .then((res) => res.json().then((json) => ({ ok: res.ok, json: json })))
+      .then((result) => {
+        if (!result.ok || !result.json || result.json.ok !== true) {
+          throw new Error((result.json && result.json.error) || "送信に失敗しました");
+        }
+        statusEl.textContent = "受信箱に入れました: " + result.json.file;
+        statusEl.className = "ops-status-text ops-status-success";
+        textEl.value = "";
+        if (refEl) refEl.value = "";
+      })
+      .catch((err) => {
+        statusEl.textContent = "エラー: " + (err && err.message ? err.message : String(err));
+        statusEl.className = "ops-status-text ops-status-error";
+      })
+      .then(() => {
+        submitBtn.disabled = false;
+      });
+  }
+
+  function wireRunButton() {
+    const button = document.getElementById("ops-run-button");
+    if (!button) return;
+    button.addEventListener("click", () => {
+      const loopSelect = document.getElementById("ops-inbox-loop");
+      if (loopSelect && loopSelect.value) startRun(loopSelect.value);
+    });
+  }
+
+  function startRun(loopId) {
+    const statusEl = document.getElementById("ops-run-status");
+    const button = document.getElementById("ops-run-button");
+    if (!statusEl || !button) return;
+
+    button.disabled = true;
+    setSpinnerText(statusEl, "実行を開始しています…");
+
+    // このUIからは動作確認のため常に dryRun:true を送る(実行はエンジンPCで)。
+    fetch(CONSOLE_API_RUN, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ loopId: loopId, mode: "turn", dryRun: true }),
+    })
+      .then((res) => res.json().then((json) => ({ status: res.status, json: json })))
+      .then((result) => {
+        if (result.status === 409) {
+          statusEl.textContent = "既に実行中です。完了をお待ちください。";
+          statusEl.className = "ops-status-text ops-status-error";
+          button.disabled = false;
+          return;
+        }
+        if (!result.json || result.json.ok !== true) {
+          throw new Error((result.json && result.json.error) || "実行できませんでした");
+        }
+        pollRunStatus(loopId);
+      })
+      .catch((err) => {
+        statusEl.textContent = "エラー: " + (err && err.message ? err.message : String(err));
+        statusEl.className = "ops-status-text ops-status-error";
+        button.disabled = false;
+      });
+  }
+
+  function setSpinnerText(el, text) {
+    el.innerHTML = "";
+    const spinner = document.createElement("span");
+    spinner.className = "ops-spinner";
+    spinner.setAttribute("aria-hidden", "true");
+    el.appendChild(spinner);
+    el.appendChild(document.createTextNode(text));
+    el.className = "ops-status-text";
+  }
+
+  function clearConsolePollTimer() {
+    if (consolePollTimer) {
+      clearTimeout(consolePollTimer);
+      consolePollTimer = null;
+    }
+  }
+
+  // 実行中は5秒間隔でポーリングする(03章5.2節)。完了したらメイン区画を
+  // 再fetchして差分を再描画する。
+  function pollRunStatus(loopId) {
+    clearConsolePollTimer();
+    const statusEl = document.getElementById("ops-run-status");
+    const button = document.getElementById("ops-run-button");
+    if (!statusEl || !button) return;
+
+    function tick() {
+      fetchRunStatus(loopId)
+        .then((json) => {
+          if (json.running === true) {
+            setSpinnerText(statusEl, "実行中(mode: " + (json.mode || "turn") + ")…");
+            button.disabled = true;
+            consolePollTimer = setTimeout(tick, CONSOLE_POLL_INTERVAL_MS);
+            return;
+          }
+
+          button.disabled = false;
+          if (json.running === false) {
+            const success = json.exitCode === 0;
+            statusEl.textContent = success
+              ? "完了しました(exit " + json.exitCode + ")。"
+              : "失敗しました(exit " + json.exitCode + ")。";
+            statusEl.className = "ops-status-text " + (success ? "ops-status-success" : "ops-status-error");
+            reloadDashboardForCurrentLoop();
+          } else {
+            // running === "unknown": console再起動直後などメモリ情報が無い
+            statusEl.textContent = "実行状況は不明です(lastSummaryで判断してください)。";
+            statusEl.className = "ops-status-text";
+          }
+        })
+        .catch(() => {
+          button.disabled = false;
+          statusEl.textContent = "実行状況の取得に失敗しました。";
+          statusEl.className = "ops-status-text ops-status-error";
+        });
+    }
+    tick();
+  }
+
+  function fetchRunStatus(loopId) {
+    return fetch(CONSOLE_API_RUN_STATUS + "?loopId=" + encodeURIComponent(loopId), { cache: "no-store" }).then(
+      (res) => {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      },
+    );
+  }
+
+  // ページ読込時・ループ切替時: 既に実行中なら(実行中にページ再読込したケース含む)
+  // スピナー状態を復元する(03章6節)。
+  function refreshRunStatusForSelectedLoop() {
+    const select = document.getElementById("ops-inbox-loop");
+    const statusEl = document.getElementById("ops-run-status");
+    const button = document.getElementById("ops-run-button");
+    if (!select || !select.value || !statusEl || !button) return;
+
+    clearConsolePollTimer();
+    fetchRunStatus(select.value)
+      .then((json) => {
+        if (json.running === true) {
+          pollRunStatus(select.value);
+          return;
+        }
+        button.disabled = false;
+        if (json.lastSummary) {
+          const outcome = json.lastSummary.outcome || (json.lastSummary.ok ? "成功" : "失敗");
+          statusEl.textContent = "前回: " + outcome;
+        } else {
+          statusEl.textContent = "—";
+        }
+        statusEl.className = "ops-status-text";
+      })
+      .catch(() => {
+        statusEl.textContent = "—";
+        statusEl.className = "ops-status-text";
+      });
+  }
+
+  // 実行完了後: 現在ダッシュボードに表示中のループを再fetchして差分を再描画する。
+  function reloadDashboardForCurrentLoop() {
+    if (currentDashboard.statePath) loadState(currentDashboard.statePath);
+    if (currentDashboard.roadmapPath) loadRoadmap(currentDashboard.roadmapPath);
   }
 })();

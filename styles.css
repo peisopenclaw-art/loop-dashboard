@@ -67,8 +67,18 @@ ul {
   max-width: 100%;
 }
 
+/* 操作列(①): loop-console(../tools/loop-console.mjs)に接続できたときだけ
+   JSが [hidden] を外し .is-active を足す。素のHTML/CSSの時点では常に非表示
+   なので、静的Pages配信(JSがloop-consoleに繋がらない)では既存の閲覧表示の
+   ままグレースフルデグレードする(03章6節)。 */
 .chat-pane {
   display: none;
+}
+
+.chat-pane.is-active {
+  display: block;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
 }
 
 .dashboard-pane {
@@ -78,48 +88,223 @@ ul {
 }
 
 @media (min-width: 900px) {
+  #main-content {
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  .dashboard-pane {
+    padding: 24px 32px 48px;
+  }
+}
+
+@media (min-width: 900px) {
   html, body {
     height: 100%;
   }
 
-  .layout {
+  /* 操作列が有効なときだけ左300px固定+右可変の2カラムにする。
+     未接続時は従来どおりダッシュボード1カラム(既存表示を壊さない)。 */
+  .layout.console-active {
     display: grid;
     grid-template-columns: 300px minmax(0, 1fr);
     height: 100vh;
   }
 
-  .chat-pane {
-    display: block;
+  .layout.console-active .chat-pane.is-active {
     border-right: 1px solid var(--color-border);
-    background: var(--color-surface);
+    border-bottom: none;
     overflow-y: auto;
     height: 100vh;
   }
 
-  .chat-pane-inner {
-    padding: 24px 20px;
-  }
-
-  .chat-pane-title {
-    font-size: 16px;
-    color: var(--color-text);
-    margin-bottom: 10px;
-  }
-
-  .chat-pane-placeholder {
-    color: var(--color-text-muted);
-    font-size: 14px;
-  }
-
-  .dashboard-pane {
+  .layout.console-active .dashboard-pane {
     height: 100vh;
     overflow-y: auto;
-    padding: 24px 32px 48px;
   }
 
-  #main-content {
-    max-width: 880px;
-    margin: 0 auto;
+  /* PCでは操作列は常に展開状態の固定パネルとして扱う(折り畳みトグルは
+     モバイル専用のインタラクション)。 */
+  .layout.console-active .ops-summary {
+    display: none;
+  }
+
+  .layout.console-active .chat-pane-inner {
+    display: block;
+  }
+}
+
+/* ---------- 操作列(操作パネルの中身) ---------- */
+
+.ops-details summary.ops-summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ops-summary::-webkit-details-marker {
+  display: none;
+}
+
+.ops-summary::before {
+  content: "▸";
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.ops-details[open] > .ops-summary::before {
+  content: "▾";
+}
+
+.ops-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--status-todo-text);
+  flex-shrink: 0;
+}
+
+.ops-dot.ops-dot-connected {
+  background: var(--status-done-text);
+}
+
+.ops-dot.ops-dot-error {
+  background: var(--status-error-text);
+}
+
+.ops-connection-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-left: -2px;
+}
+
+.chat-pane-inner {
+  padding: 4px 16px 20px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ops-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ops-block-heading {
+  font-size: 13px;
+  margin: 12px 0 0;
+}
+
+.ops-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+.ops-select,
+.ops-input,
+.ops-textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 7px 9px;
+  box-sizing: border-box;
+}
+
+.ops-textarea {
+  resize: vertical;
+  min-height: 64px;
+}
+
+.ops-button {
+  align-self: flex-start;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 7px 16px;
+  cursor: pointer;
+}
+
+.ops-button:hover {
+  background: var(--color-bg);
+}
+
+.ops-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.ops-button-primary {
+  color: #fff;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.ops-button-primary:hover:not(:disabled) {
+  background: #32499e;
+}
+
+.ops-note {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.ops-status-text {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+  margin: 2px 0 0;
+  min-height: 1.3em;
+}
+
+.ops-status-text.ops-status-success {
+  color: var(--status-done-text);
+}
+
+.ops-status-text.ops-status-error {
+  color: var(--status-error-text);
+}
+
+.ops-footnote {
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+  border-top: 1px dashed var(--color-border);
+  padding-top: 10px;
+  margin: 0;
+}
+
+.ops-spinner {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  margin-right: 5px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 999px;
+  vertical-align: -1px;
+  animation: ops-spin 0.7s linear infinite;
+}
+
+@keyframes ops-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
